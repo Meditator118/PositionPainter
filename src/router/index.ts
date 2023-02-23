@@ -3,11 +3,10 @@ import Map from '../components/Map.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'Map',
-    //   component: Map
-    // },
+    {
+      path: '/',
+      redirect:'/map'
+    },
     {
       path: '/map',
       name: 'Map',

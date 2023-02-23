@@ -5,7 +5,7 @@
             <div class="top-nav">
               <el-image class="logo" src="../../public/icon/logo.svg" mode="aspectFit|aspectFill|widthFix" lazy-load="false" binderror="" bindload="">
               </el-image>
-              <el-switch active-icon inactive-icon />
+              <el-switch v-model="value1" />
               <span class="user">
                 <el-image class="user-icon" src="../../public/icon/user.svg" mode="aspectFit|aspectFill|widthFix" lazy-load="false" binderror="" bindload="">
                 </el-image>
@@ -15,22 +15,23 @@
             </div>
           </el-header>
           <el-container>
-            <el-aside class="aside" width="240px">
+            <el-aside class="aside" width="80px">
               <div>
-                <el-row>
-                  <el-col :span="24">
-                    <div class="grid-content ep-bg-purple-dark">
-                    <span></span>
-                    <RouterLink class="jump" to="/map">轨迹测算</RouterLink>
+                <el-row :class="{'row-active': ismapactive}">
+                  <el-col :span="24" @click="jump2map">
+                   
+                    <div :class="['jump',{'active': ismapactive}]" >
+                      <img src="../../public/icon/pos.svg" alt="" class="icon">
+                      <div>轨迹测算</div>
                     </div>
                   </el-col>
                 </el-row>
-                <el-row>
-                  <el-col :span="24">
-                    <div class="grid-content ep-bg-purple-dark">
-                      <span></span>
-                      <RouterLink class="jump" to="/data">数据上传</RouterLink>
-                    </div>
+                <el-row :class="{'row-active': isdataactive}">
+                  <el-col :span="24" @click="jump2data">
+                      <div :class="['jump',{'active': isdataactive}]" >
+                        <img src="../../public/icon/data.svg" alt=""  class="icon">
+                        <div>数据上传</div>
+                      </div>
                   </el-col>
                 </el-row>
               </div>
@@ -38,18 +39,38 @@
             <el-main class="main"><RouterView /></el-main>
           </el-container>
         </el-container>
-      <!-- </div> -->
-     
-      <!-- <nav>
-        
-      </nav> -->
-  <!--  -->
 </template>
 
-<script lang="ts">
-export default {
+<script lang="ts" >
+import { ref,defineComponent } from 'vue'
 
-}
+export default defineComponent({
+  
+  data(){
+   return{
+    value1 : ref(true),
+    ismapactive:true,
+    isdataactive:false,
+   }
+
+  },
+  mounted(){
+    
+  },
+  methods:{
+    jump2data(){
+      this.$router.replace('/data')
+      this.ismapactive=false
+      this.isdataactive=true
+    },
+    jump2map(){
+      this.$router.replace('/map')
+      this.ismapactive=true
+      this.isdataactive=false
+    }
+  }
+ 
+})
 </script>
 
 <style>
@@ -62,47 +83,68 @@ export default {
   border-bottom: 1px solid var(--el-border-color);
 }
 .el-aside{
-  background:    #79bbff;
+  background:    white;
   border-right: 1px solid var(--el-border-color);
+  box-shadow: var(--el-box-shadow-dark);
 }
 .el-main{
   background-color: rgb(245, 245, 245);
 }
-.el-row {
-  margin:10px 10px;
+.el-row{
+  margin: 10px 0;
+}
+.el-col {
+  margin:0 2px 0 0;
+  border-left: 4px solid white
 }
 .el-row:last-child {
   margin-bottom: 0;
 }
-.grid-content {
-  min-height: 60px;
-  line-height: 60px;
-  text-align: center;
+.icon{
+  width: 20px;
+  height: 20px;
+}
+.row-active{
+  border-left: 4px solid #337ecc;
 }
 .jump{
-  font-size: 16px;
-  color:  white;
+  width: 90%;
+  height: 60px;
+  text-align: center;
+  font-size: 12px;
+  color:  #337ecc;
+  padding:10px 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.jump:hover{
+  background-color: rgb(225, 224, 224);
+  border-radius: 10px;
+}
+.active{
+  background-color:rgb(225, 224, 224)
 }
 .top-nav{
   height: 100%;
   display: grid;
-  grid-template-columns: 85% 5% 5% 5%;
+  grid-template-columns: 85% 7% 4% 4%;
   align-items: center;
 }
 .user-icon{
   margin: 0 auto;
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
 }
 .user{
-  width: 30px;
-  height: 30px;
-  border-radius: 15px;
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
   background: rgb(225, 225, 225);
 }
 .logo{
   width: 40px;
   height: 40px;
+  margin-left: 80px;
 }
 .github{
   width: 30px;

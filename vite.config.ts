@@ -10,5 +10,17 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server:{
+    host: 'localhost',
+    port: 5173,
+    proxy:{
+      "/api":{
+        "target": "http://120.79.209.43:8080",
+        "secure":false,
+        "changeOrigin":true,
+        "rewrite":path=>path.replace(/^\/api/,'')
+      }
+    }
   }
 })
