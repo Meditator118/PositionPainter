@@ -1,4 +1,5 @@
 export class Point{
+    //定位点类
     x:number
     y:number
     index:number
@@ -20,17 +21,17 @@ export class Point{
    
     draw(){
        if(this.tag){
+        //定位轨迹点绘制函数
         this.cvsCtx.beginPath();
-        // this.cvsCtx.fillStyle = 'blue';
-        // this.cvsCtx.fillRect(this.x-5, this.y-5, 10, 10);
         this.cvsCtx.fillStyle = 'blue';
         this.path.arc(this.x, this.y, 8, 0, 2*Math.PI, false);
         this.cvsCtx.fill(this.path)
         this.cvsCtx.closePath();
        }else{
         this.cvsCtx.save()
+        //预测轨迹点绘制函数
             let img=new Image()
-          img.src='../../public/icon/dis.svg'
+          img.src='../../public/img/dis.svg'
           img.onload=()=>{
             this.path.arc(this.x, this.y,8, 0, 2*Math.PI, false);
             this.cvsCtx.fill(this.path)

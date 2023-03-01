@@ -1,10 +1,12 @@
 <template>
  <div class="con">
+  <!-- 地图区 -->
   <img src="../../public/img/map1.jpg" alt="" width="800" height="600">
   <canvas id="c" width="800" height="600"></canvas>
+  <!-- 数据集切换区 -->
   <div class="control">
     <el-select v-model="dataset" class="m-2" 
-    placeholder="请选择数据集" size="large" @change="handelSel">
+    placeholder="请选择数据集" size="large" @change="initPaint">
       <el-option
         v-for="item in options"
         :key="item.value"
@@ -13,7 +15,7 @@
       />
     </el-select>
   </div>
-
+  <!-- 误差曲线区 -->
   <div class="figure-con" v-show="showcdf">
     <div id="chart" >
     </div>
@@ -28,8 +30,7 @@
     :key = "val" :label="val.label">{{ val.value }}</el-descriptions-item>
   </el-descriptions>
   </div>
-
-
+  <!-- 定位点信息区 -->
  <div class="detail" v-show="showposdetail">
   <el-descriptions
     class="margin-top"
@@ -78,6 +79,7 @@
 
   </el-descriptions>
  </div>
+ <!-- 图例 -->
  <div class="tips">
   <div class="trueline">真实轨迹</div>
   <div class="posline">定位轨迹</div>
@@ -91,8 +93,6 @@ import {defineComponent,ref} from 'vue';
 import axios from 'axios'
 import {Point} from '../../src/model/class'
 // import {pointList} from '../../public/temp/postion28'
-
-import {acc} from '../../public/temp/runnings28'
 import type {initPosition} from '../../src/model'
 import type {initAcc} from '../../src/model'
 import type {truepos} from '../../src/model'
@@ -140,6 +140,7 @@ export default defineComponent({
     }
   },
   mounted(){
+    //初始化屏幕像素换算
     let c=document.getElementById('c')as HTMLCanvasElement
     let width = c.width,height=c.height;
     if (dpr) {
@@ -148,17 +149,11 @@ export default defineComponent({
 	        c.height = height * dpr;
 	        c.width = width * dpr;
     }
-    // console.log(dpr);
-    // this.upload()
-    // console.log(c.height,c.width);
-    // console.log(height,width);
     this.initdatalist()
-    
-    
-    // this.drawImg()
   },
   methods:{
     async initdatalist(){
+      //初始化数据集
       const res2 = await axios.get(`/api/batchs`)
       this.options.pop()
       for(let i=0;i<res2.data.length;i++){
@@ -170,13 +165,13 @@ export default defineComponent({
     lock: true,
     text: 'Loading',
     background: 'rgba(0, 0, 0, 0.7)',
-  })
+    })
       let c=document.getElementById('c')as HTMLCanvasElement
       let cvsCtx=c.getContext('2d')as CanvasRenderingContext2D
       let posList:Point[]=[]
       let pdrsamList:Point[]=[]
       this.showcdf=true
-
+      //canvas画笔配置
       cvsCtx.save()
       cvsCtx.clearRect(0, 0,1712,1284);
       cvsCtx.fillRect(635,714, 10, 10);
@@ -186,18 +181,20 @@ export default defineComponent({
       cvsCtx.lineWidth = 5;
 
       
-
+      //获取轨迹信息
       const res1 = await axios.get(`/api/positions?batch=${batchSeq}`)
       const res3 = await axios.get(`/api/runnings/pdr?batch=${batchSeq}`)
       let magic=1
       if(27<=batchSeq&&batchSeq<=31){
         magic=0
       }
-      const res2 = await axios.get(`/api/truepoint?magic=${magic}`)
+      const res2 = await axios.get(`/api/truepoint?batch=${magic}`)
+      console.log(res1,res2,res3);
+
+      //绘制真实轨迹
       let truelist:truepos[]=res2.data
       console.log(truelist);
       cvsCtx.beginPath();
-
       cvsCtx.strokeStyle = 'red';
       cvsCtx.setLineDash([5, 15]);
       truelist.map((item)=>{
@@ -207,13 +204,12 @@ export default defineComponent({
       cvsCtx.setLineDash([]);
       cvsCtx.closePath()
       
-
+      //绘制定位轨迹
       cvsCtx.strokeStyle = 'green';
-      
-       const pointList:initPosition[]=res1.data
-       const pdrList:initAcc[]=res3.data
-       cvsCtx.fillStyle = '#337ecc';
-       cvsCtx.beginPath();
+      const pointList:initPosition[]=res1.data
+      const pdrList:initAcc[]=res3.data
+      cvsCtx.fillStyle = '#337ecc';
+      cvsCtx.beginPath();
       pointList.map((item)=>{ 
         cvsCtx.lineTo(item.x*90+635, 714-item.y*90);
         cvsCtx.stroke();
@@ -226,7 +222,7 @@ export default defineComponent({
           posList.push(samplePoint)
         })
       
-
+      //绘制预测轨迹
       cvsCtx.strokeStyle = 'yellow';
       cvsCtx.fillStyle = 'white';
       cvsCtx.beginPath();  
@@ -236,9 +232,10 @@ export default defineComponent({
       })
       cvsCtx.closePath()
 
-    let cdf=new Array(pdrList.length)
-    let pointSeq=new Array(pdrList.length)
-let sum=0
+      //计算误差
+      let cdf=new Array(pdrList.length)
+      let pointSeq=new Array(pdrList.length)
+      let sum=0
       pdrList.map((item,index)=>{
         cdf[index] = item.error
         sum+=item.error
@@ -262,58 +259,63 @@ let sum=0
       cdfdata.push([cdf[index],pointSeq[index]])
     }
 
-      c.onclick=(e)=>{
-        // cvsCtx.isPointInPath(posList[posList.length-1].path, (e.clientX-offx)*dpr,(e.clientY-offy)*dpr) 
-        this.showposdetail=false  
-        this.showpdrdetail=false  
+    //绑定点击事件
+    c.onclick=(e)=>{
+      // cvsCtx.isPointInPath(posList[posList.length-1].path, (e.clientX-offx)*dpr,(e.clientY-offy)*dpr) 
+      this.showposdetail=false  
+      this.showpdrdetail=false  
 
-        for (const iterator of posList) {  
-          if(cvsCtx.isPointInPath(iterator.path, (e.clientX-offx)*dpr, (e.clientY-offy)*dpr)) {
-            this.setposDetail(iterator.index,pointList)
-            this.showposdetail=true
-            break;
-          }
+      for (const iterator of posList) {  
+        if(cvsCtx.isPointInPath(iterator.path, (e.clientX-offx)*dpr, (e.clientY-offy)*dpr)) {
+          this.setposDetail(iterator.index,pointList)
+          this.showposdetail=true
+          break;
         }
-        for (const iterator of pdrsamList) {  
-          if(cvsCtx.isPointInPath(iterator.path, (e.clientX-offx)*dpr, (e.clientY-offy)*dpr)) {
-            this.setpdrDetail(iterator.index,pdrList)
-            this.showpdrdetail=true
-            break;
-          }
+      }
+      for (const iterator of pdrsamList) {  
+        if(cvsCtx.isPointInPath(iterator.path, (e.clientX-offx)*dpr, (e.clientY-offy)*dpr)) {
+          this.setpdrDetail(iterator.index,pdrList)
+          this.showpdrdetail=true
+          break;
         }
-        }
-      cvsCtx.restore();
-      type EChartsOption = echarts.EChartsOption;
-      let chartDom = document.getElementById('chart')!;
-      let myChart = echarts.init(chartDom);
-      let option: EChartsOption;
-      option = {
-        title:{
-          show: true ,
-          text: ' CDF曲线' ,
-          left: "center",
-        },
-        tooltip: {
-        trigger: 'axis'
+      }
+    }
+    cvsCtx.restore();
+
+    //配置误差曲线图
+    type EChartsOption = echarts.EChartsOption;
+    let chartDom = document.getElementById('chart')!;
+    let myChart = echarts.init(chartDom);
+    let option: EChartsOption;
+    option = {
+      title:{
+        show: true ,
+        text: ' CDF曲线' ,
+        left: "center",
       },
-        xAxis: {},
-        yAxis: {},
-        series: [
-          {
-            data:  cdfdata,
-            type: 'line',
-          }
-        ]
-      };
-      option && myChart.setOption(option);
-
-      loading.close()
+      tooltip: {
+      trigger: 'axis'
     },
+      xAxis: {
+        name: '误差',
+        nameGap:4
+      },
+      yAxis: {
+        name: '百分比',
+      },
+      series: [
+        {
+          data:  cdfdata,
+          type: 'line',
+        }
+      ]
+    };
+    option && myChart.setOption(option);
 
-    handelSel(e:number){ 
-      this.initPaint(e)
+    loading.close()
     },
     setposDetail(index:number,pointList:initPosition[]){
+      // 显示定位点信息
       let point=pointList[index]
       this.pointDetail.x=String(point.x).slice(0,10)
       this.pointDetail.y=String(point.y).slice(0,10)
@@ -322,6 +324,7 @@ let sum=0
       this.pointDetail.sampleBatch=String(point.sampleBatch)
     },
     setpdrDetail(index:number,pdrList:initAcc[]){
+      // 显示预测点信息
       let point=pdrList[index]
       this.pdrDetail.accx=String(point.accx).slice(0,10)
       this.pdrDetail.accy=String(point.accy).slice(0,10)
@@ -329,20 +332,7 @@ let sum=0
       this.pdrDetail.gyroscopez=String(point.gyroscopez).slice(0,10)
       this.pdrDetail.gyroscopey=String(point.gyroscopey).slice(0,10)
       this.pdrDetail.gyroscopex=String(point.gyroscopex).slice(0,10)
-      this.pdrDetail.theta=String(point.theta)
-    },
-    drawImg(){
-      let img=new Image()
-      img.src='../../public/img/map1.jpg'
-      let c=document.getElementById('c')as HTMLCanvasElement
-      let cvsCtx=c.getContext('2d')as CanvasRenderingContext2D
-      cvsCtx.save();
-      img.onload=()=>{
-      cvsCtx.beginPath();
-      cvsCtx.drawImage(img, 0, 0,1780, 1335);
-      cvsCtx.closePath();
-    }
-    cvsCtx.restore();
+      this.pdrDetail.theta=String(point.theta).slice(0,10)
     }
   }
 })
@@ -380,6 +370,7 @@ let sum=0
   top: 45px;
   right:0;
   height:300px;
+  width: 320px;
   background-color: white;
 }
 .error-list{

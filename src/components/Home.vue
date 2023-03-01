@@ -3,15 +3,7 @@
     <el-container class="container">
           <el-header class="header" >
             <div class="top-nav">
-              <el-image class="logo" src="../../public/icon/logo.svg" mode="aspectFit|aspectFill|widthFix" lazy-load="false" binderror="" bindload="">
-              </el-image>
-              <el-switch v-model="value1" />
-              <span class="user">
-                <el-image class="user-icon" src="../../public/icon/user.svg" mode="aspectFit|aspectFill|widthFix" lazy-load="false" binderror="" bindload="">
-                </el-image>
-              </span>
-              <el-image class="github" src="../../public/icon/github.svg" mode="aspectFit|aspectFill|widthFix" lazy-load="false" binderror="" bindload="">
-              </el-image>
+              <img class="logo" src="../../public/img/logo.svg" mode="aspectFit|aspectFill|widthFix" lazy-load="false" binderror="" bindload="">
             </div>
           </el-header>
           <el-container>
@@ -21,7 +13,7 @@
                   <el-col :span="24" @click="jump2map">
                    
                     <div :class="['jump',{'active': ismapactive}]" >
-                      <img src="../../public/icon/pos.svg" alt="" class="icon">
+                      <img src="../../public/img/pos.svg" alt="" class="icon">
                       <div>轨迹测算</div>
                     </div>
                   </el-col>
@@ -29,7 +21,7 @@
                 <el-row :class="{'row-active': isdataactive}">
                   <el-col :span="24" @click="jump2data">
                       <div :class="['jump',{'active': isdataactive}]" >
-                        <img src="../../public/icon/data.svg" alt=""  class="icon">
+                        <img src="../../public/img/data.svg" alt=""  class="icon">
                         <div>数据上传</div>
                       </div>
                   </el-col>
@@ -58,6 +50,7 @@ export default defineComponent({
     
   },
   methods:{
+    //路由跳转方法
     jump2data(){
       this.$router.replace('/data')
       this.ismapactive=false
