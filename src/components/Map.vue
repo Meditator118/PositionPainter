@@ -369,13 +369,13 @@ export default defineComponent({
   border: 1px solid #79bbff;
   top: 45px;
   right:0;
-  height:300px;
+  height:280px;
   width: 320px;
   background-color: white;
 }
 .error-list{
   display:relative;
-  top:-30px
+  top:-45px
 }
 .tips{
   position: absolute;
@@ -403,7 +403,7 @@ export default defineComponent({
 
 .detail{
   position: absolute;
-  top: 350px;
+  top: 330px;
   right: 0;
   width: 320px;
   padding: 10px 20px;

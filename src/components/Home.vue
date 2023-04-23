@@ -68,7 +68,7 @@ export default defineComponent({
 
 <style>
 .el-container{
-  width: 100%;
+  width: 100vw;
   height: 100vh;
 }
 .el-header{
